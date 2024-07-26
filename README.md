@@ -17,27 +17,32 @@ Este proyecto es un asistente virtual que utiliza el servicio de reconocimiento 
   - [Axios](https://axios-http.com/): Cliente HTTP para realizar solicitudes al backend.
 
 ## Estructura del Proyecto
-my-voice-assistant/
-│
-├── backend/
-│ ├── app.py
-│ ├── voice_routes.py
-│ ├── .env
-│ ├── requirements.txt
-│ └── ...
-│
-└── frontend/
-├── public/
-│ ├── index.html
-│ └── ...
-├── src/
-│ ├── components/
-│ ├── App.js
-│ ├── index.js
-│ └── ...
-├── package.json
-├── package-lock.json
-└── ...
+
+### Backend
+
+- **`app.py`**: Archivo principal de la aplicación Flask que define las rutas y configura el servicio de reconocimiento de voz.
+- **`voice_routes.py`**: Archivo que contiene las rutas específicas para manejar las solicitudes de reconocimiento de voz.
+- **`.env`**: Archivo para almacenar variables de entorno como claves de API y configuraciones del servicio de voz.
+- **`requirements.txt`**: Archivo de configuración que lista todas las dependencias necesarias para el backend.
+
+### Frontend
+
+- **`public/`**: Carpeta que contiene archivos estáticos como el `index.html` que sirve como punto de entrada para la aplicación React.
+  - **`index.html`**: Archivo HTML principal que se carga en el navegador.
+- **`src/`**: Carpeta que contiene el código fuente de la aplicación React.
+  - **`components/`**: Carpeta para componentes React reutilizables.
+    - **`VoiceCommand.js`**: Componente para manejar la interacción de comandos de voz.
+  - **`App.js`**: Componente principal de la aplicación que define la estructura de la interfaz de usuario.
+  - **`index.js`**: Archivo de entrada que renderiza la aplicación React en el DOM.
+- **`package.json`**: Archivo de configuración para gestionar dependencias y scripts del proyecto frontend.
+- **`package-lock.json`**: Archivo de bloqueo que asegura la versión consistente de las dependencias instaladas.
+
+### Configuración Adicional
+
+- **Archivos `.gitignore`**: Asegúrate de tener un archivo `.gitignore` en la raíz del proyecto para excluir archivos y carpetas no deseados, como `node_modules/` en el frontend y `venv/` en el backend.
+
+Esta estructura te ayudará a mantener tu proyecto organizado y facilitará la colaboración con otros desarrolladores. Asegúrate de adaptar esta estructura según las necesidades específicas de tu proyecto.
+
 
 ## Instalación
 
