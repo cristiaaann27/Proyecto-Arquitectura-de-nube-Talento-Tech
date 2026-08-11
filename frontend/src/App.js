@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import './App.css';
+import TaskForm from './components/TaskForm';
+import TaskList from './components/TaskList';
+import VoiceCommand from './components/VoiceCommand';
+import useTasks from './hooks/useTasks';
 
 function App() {
-  const [response, setResponse] = useState('');
-
-  const handleVoiceCommand = async () => {
-    try {
-      const res = await axios.post('http://localhost:5000/voice-command', {});
-      setResponse(res.data.message);
-    } catch (error) {
-      console.error(error);
-      setResponse('Error processing voice command');
-    }
-  };
+  const { tasks, loading, error, createTask, updateTask, deleteTask, refresh } = useTasks();
 
   return (
     <div className="App">
       <h1>Voice Command Task Assistant</h1>
-      <button onClick={handleVoiceCommand}>Send Command</button>
-      <p>Response: {response}</p>
+
+      <VoiceCommand onCommandSuccess={refresh} />
+
+      <TaskForm onSubmit={createTask} />
+      <TaskList
+        tasks={tasks}
+        loading={loading}
+        error={error}
+        onUpdate={updateTask}
+        onDelete={deleteTask}
+      />
     </div>
   );
 }
