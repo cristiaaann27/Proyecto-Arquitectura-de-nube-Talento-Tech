@@ -1,55 +1,48 @@
-from flask import Flask, request, jsonify
-import requests
+from flask import Flask
 from flask_cors import CORS
-from dotenv import load_dotenv
-import os
-import azure.cognitiveservices.speech as speech_sdk
 
-app = Flask(__name__)
-CORS(app)
+from commands.voice_commands import VoiceCommandRegistry
+from config import Config
+from extensions import db
+from repositories.task_repository import SQLAlchemyTaskRepository
+from routes.task_routes import task_routes
+from routes.voice_routes import voice_routes
+from services.speech_provider import SpeechRecognizerProvider
+from services.task_service import TaskService
+from services.voice_command_service import VoiceCommandService
 
-# Load environment variables
-load_dotenv()
-SPEECH_KEY = os.getenv('SPEECH_KEY')
-SPEECH_REGION = os.getenv('SPEECH_REGION')
 
-# Configure speech service
-speech_config = speech_sdk.SpeechConfig(subscription=SPEECH_KEY, region=SPEECH_REGION)
-speech_config.speech_recognition_language = "es-ES"
-speech_recognizer = speech_sdk.SpeechRecognizer(speech_config=speech_config)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
 
-# Endpoint for voice command processing
-@app.route('/voice-command', methods=['POST'])
-def process_voice_command():
-    try:
-        # Record and transcribe voice command
-        result = speech_recognizer.recognize_once()
-        if result.reason == speech_sdk.ResultReason.RecognizedSpeech:
-            voice_command = result.text
-            print("Recognized command:", voice_command)
-        else:
-            return jsonify({'message': 'No command recognized'}), 400
+    CORS(app)
+    db.init_app(app)
 
-        # Process the transcribed text
-        response_message = process_command(voice_command)
+    task_service = TaskService(SQLAlchemyTaskRepository())
+    speech_provider = SpeechRecognizerProvider(
+        speech_key=app.config['SPEECH_KEY'],
+        speech_region=app.config['SPEECH_REGION'],
+        language=app.config['SPEECH_LANGUAGE'],
+    )
+    voice_command_service = VoiceCommandService(
+        task_service=task_service,
+        speech_provider=speech_provider,
+        command_registry=VoiceCommandRegistry(),
+    )
 
-        return jsonify({'message': response_message})
+    app.extensions['task_service'] = task_service
+    app.extensions['voice_command_service'] = voice_command_service
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    app.register_blueprint(task_routes)
+    app.register_blueprint(voice_routes)
 
-def process_command(command):
-    command = command.lower()
-    if 'crear tarea' in command:
-        return 'Task created'
-    elif 'listar tarea' in command:
-        return 'Here are your tasks'
-    elif 'actualizar tarea' in command:
-        return 'Task updated'
-    elif 'borrar tarea' in command:
-        return 'Task deleted'
-    else:
-        return 'Command not recognized'
+    with app.app_context():
+        db.create_all()
+
+    return app
+
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(debug=True, port=5000)

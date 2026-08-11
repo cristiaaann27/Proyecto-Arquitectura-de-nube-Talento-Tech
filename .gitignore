@@ -17,4 +17,9 @@ npm-debug.log
 *.tmp
 *.bak
 
+# Base de datos SQLite local
+*.db
+*.sqlite
+*.sqlite3
+
 
